@@ -60,8 +60,14 @@
  setIcon(false);
  if (!userMuted) {
   play();
-  const first = e => { if (btn.contains(e.target)) return; if (!userMuted && bgm.paused) play(); };
-  addEventListener("pointerdown", first, {once: true});
+  const evts = ["pointerdown", "touchend", "keydown", "click"];
+  const cleanup = () => evts.forEach(ev => removeEventListener(ev, unlock, true));
+  function unlock(e) {
+   if (btn.contains(e.target)) return;      // دکمه‌ی موزیک کار خودش را می‌کند
+   if (userMuted) return cleanup();
+   bgm.play().then(() => { setIcon(true); cleanup(); }).catch(() => {});
+  }
+  evts.forEach(ev => addEventListener(ev, unlock, true));
  }
 
  // اگر از صفحه‌ی درس برگشتیم، پنل آموزش‌ها خودکار باز شود
