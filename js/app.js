@@ -63,5 +63,9 @@
   const first = e => { if (btn.contains(e.target)) return; if (!userMuted && bgm.paused) play(); };
   addEventListener("pointerdown", first, {once: true});
  }
+
+ // اگر از صفحه‌ی درس برگشتیم، پنل آموزش‌ها خودکار باز شود
+ if (location.hash === "#lessons") $("lessonsBtn").click();
+
  applyLang();
 })();
