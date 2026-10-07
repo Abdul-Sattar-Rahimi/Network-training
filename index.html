@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>آموزش شبکه</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="corner">
+  <button class="glass circle" id="musicBtn" aria-label="Music" aria-pressed="false"><img id="musicIcon" alt=""><span id="musicFallback">♪</span></button>
+  <button class="glass circle" id="langBtn" aria-label="Language">EN</button>
+</div>
+
+<main class="hero glass-panel">
+  <h1 data-i18n="hello"></h1>
+  <p data-i18n="p1"></p>
+  <p data-i18n="p2"></p>
+  <p data-i18n="p3"></p>
+  <p class="teacher" data-i18n="teacher"></p>
+  <button class="glass capsule" id="lessonsBtn"><span data-i18n="lessons"></span></button>
+</main>
+
+<section class="overlay" id="overlay" hidden>
+  <div class="glass-panel sheet" role="dialog" aria-modal="true">
+    <button class="glass circle close" id="closeBtn" aria-label="Close">✕</button>
+    <h2 data-i18n="lessons"></h2>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<audio id="bgm" src="assets/music.mp3" loop preload="auto"></audio>
+<script src="js/lang.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
