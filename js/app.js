@@ -1,6 +1,6 @@
 (() => {
  const $ = id => document.getElementById(id);
- let lang = localStorage.getItem("lang") || "fa";
+ let lang = localStorage.getItem("lang") || "en";
  let lessons = [];
  const faDigits = n => String(n).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
 
