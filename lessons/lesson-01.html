@@ -26,11 +26,16 @@ button{font:inherit;font-weight:600;font-size:14px;border:1px solid var(--line);
 button.pri{background:#eaf1f5;color:#0b1116}button.sel{outline:2px solid var(--g)}button:disabled{opacity:.35}
 button:focus-visible{outline:3px solid #6aa8ff;outline-offset:2px}
 #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0b1116;font-weight:600}
+#rot{position:fixed;inset:0;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(11,17,22,.96);text-align:center;padding:24px;font-weight:600;line-height:1.9}
+#rot .ic{font-size:56px;display:inline-block;animation:rt 2s ease-in-out infinite}
+@keyframes rt{0%,30%{transform:rotate(0)}70%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait) and (max-width:900px){#rot{display:flex}}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <div id="load">در حال آماده‌سازی کارگاه...</div>
+<div id="rot"><div class="ic">📱</div><div>برای تجربهٔ بهتر، گوشی را افقی بچرخانید</div><div style="font-size:13px;color:var(--mute)">اگر صفحه نمی‌چرخد، قفل چرخش گوشی را خاموش کنید.</div><button id="rotB" class="pri">تمام‌صفحه و افقی</button></div>
 <div class="p" id="top"><b id="ttl"></b><div id="dots"></div><div class="ctl"><button id="cB">T568B</button><button id="cA">T568A</button></div></div>
 <div class="p" id="side"></div>
 <div class="p" id="bot"><p id="ins"></p><p id="fb"></p>
@@ -89,6 +94,8 @@ Cn.add(new T.LineSegments(new T.EdgesGeometry(body.geometry),new T.LineBasicMate
 var latch=new T.Mesh(new T.BoxGeometry(1,.1,1.1),clear);latch.position.set(-.4,.68,0);latch.rotation.z=.08;Cn.add(latch);
 var pins=[];for(var i=0;i<8;i++){var p=new T.Mesh(new T.BoxGeometry(.1,.3,.05),new T.MeshPhongMaterial({color:0xe0b040,specular:0xffffff,shininess:120}));p.position.set(.95,.42,(i-3.5)*.17);Cn.add(p);pins.push(p)}
 Cn.position.y=.8;Sc.add(Cn);
+// ناحیهٔ لمس بزرگ‌تر و نامرئی برای گرفتن سوکت با انگشت
+var hit=new T.Mesh(new T.BoxGeometry(3.4,2.4,3),new T.MeshBasicMaterial({visible:false}));Cn.add(hit);
 // crimper
 var Cr=new T.Group(),steel=new T.MeshPhongMaterial({color:0x7d8a94,specular:0xffffff,shininess:80});
 var jb=new T.Mesh(new T.BoxGeometry(3.2,.25,2.4),steel);jb.position.y=.12;Cr.add(jb);
@@ -115,6 +122,7 @@ var AC;function snd(f,d,t,v){try{AC=AC||new AudioContext();var o=AC.createOscill
 function fan(s){S.order.forEach(function(id,i){W[id].tz=(i-3.5)*s;W[id].tzc=(i-3.5)*.06})}
 function ragged(){for(var id in W){W[id].tl=W[id].tip-XS}}
 function cxF(){return S.c-.4+1.2}
+function rg(){return innerWidth<innerHeight?3.6:5.5} // فاصلهٔ شروع سوکت: در گوشی عمودی کوتاه‌تر
 function mark(){S.order.forEach(function(id,i){W[id].mat.emissive.setHex(S.checked?(id==STD[S.std][i]?0x0a7a3a:0x8a1a1a):0)})}
 function shuffle(){var a=STD.B.slice(),m;do{for(var i=7;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}m=0;a.forEach(function(x,i){if(x==STD[S.std][i])m++})}while(m>1);return a}
 function sw(c){return"linear-gradient(90deg,"+(c[0]=="w"?"#f4f4f4 0 50%,":"")+BC[c.replace("w","")]+" 50%)"}
@@ -133,10 +141,11 @@ $("dots").innerHTML=STEPS.map(function(){return"<i></i>"}).join("");
 function go(n){
  S.st=n;S.done=0;S.sel=null;S.checked=0;drag=0;mark();fb("");
  var c=CAMS[n];camT.set(c[0],c[1],c[2]);lookT.set(c[3],c[4],c[5]);
+ if(n==4&&innerWidth<innerHeight){camT.set(3.2,9,10);lookT.set(3.2,.8,0)} // گوشی عمودی: دوربین عقب‌تر تا کابل و سوکت هر دو دیده شوند
  if(!S.order.length)S.order=shuffle();
  zone.visible=false;blade.visible=false;Cn.visible=n>=4;Cr.visible=n==5;tester.visible=n==6;
  jtx=n==0?3.8:S.c;fan(n==0?.07:.17);if(n<=1){S.prog=0;["wo","o","wg","g","wb","b","wbr","br"].forEach(function(id,k){var w=W[id];w.tz=(Math.floor(k/2)-1.5)*.5+(k%2?.09:-.09);w.str=0;w.tcu=1})}else for(var q in W)W[q].tcu=0;if(n<4)ragged();else for(var id in W)W[id].tl=TRIM-XS;
- sqT=1;pinT=.42;jawT=2.7;S.tcx=n==4?cxF()+5.5:cxF();if(n>=4){Cn.position.x=n==4?S.tcx:cxF()}
+ sqT=1;pinT=.42;jawT=2.7;S.tcx=n==4?cxF()+rg():cxF();if(n>=4){Cn.position.x=n==4?S.tcx:cxF()}
  if(n==0||n==3){var lo=n?2.4:.6,hi=n?2.8:1;zone.scale.x=hi-lo;zone.position.x=(lo+hi)/2;zone.visible=true}
  if(n==6)for(var i=0;i<8;i++){led(LA,i,0);led(LB,i,0)}
  if(n==5)Cr.position.x=cxF();
@@ -157,9 +166,9 @@ cv.addEventListener("pointermove",function(e){mv(e);var x=aimX();
  if(S.st==0||S.st==3){blade.visible=x!==null;if(x!==null)blade.position.x=x}
  else if(S.st==2){var h=pick(WM)[0];cv.style.cursor=h?"pointer":"default"}
  else if(S.st==4){
-  if(drag&&x!==null){S.tcx=Math.max(cxF(),Math.min(cxF()+5.5,x-off));
+  if(drag&&x!==null){S.tcx=Math.max(cxF(),Math.min(cxF()+rg(),x-off));
    if(S.tcx<=cxF()+.06){S.tcx=cxF();drag=0;snd(180,.1);snd(1200,.1,"sine");shake=.06;ok("سوکت تا انتها رفت و روکش داخل آن قرار گرفت. صدای کلیک را شنیدی؟")}}
-  else cv.style.cursor=pick([body]).length?"grab":"default"}});
+  else cv.style.cursor=pick([hit]).length?"grab":"default"}});
 cv.addEventListener("pointerdown",function(e){mv(e);var x=aimX();snd(1,.01);if(S.st==1){pdown=1;lx=e.clientX;ly=e.clientY;return}
  if(S.st==0&&x!==null&&!S.done){
   if(x>=.6&&x<=1){S.c=x;jtx=x;fan(.17);zone.visible=blade.visible=false;snd(160,.15,"sawtooth");shake=.04;ok("برش درست بود. روکش جدا شد و ۸ سیم آزاد شدند.")}
@@ -171,8 +180,9 @@ cv.addEventListener("pointerdown",function(e){mv(e);var x=aimX();snd(1,.01);if(S
  else if(S.st==3&&x!==null&&!S.done){
   if(x>=2.4&&x<=2.8){for(var k in W)W[k].tl=TRIM-XS;zone.visible=blade.visible=false;snd(200,.12,"sawtooth");shake=.04;ok("همه سیم‌ها هم‌اندازه شدند.")}
   else fb(x<2.4?"خیلی کوتاه است و سیم‌ها به پین‌ها نمی‌رسند.":"سیم‌های بلندتر هنوز ناهمسان‌اند. نزدیک‌تر به ناحیه سبز و کوتاه‌ترین سیم برش بزن.")}
- else if(S.st==4&&!S.done&&pick([body]).length&&x!==null){drag=1;off=x-Cn.position.x;cv.style.cursor="grabbing"}});
+ else if(S.st==4&&!S.done&&pick([hit]).length&&x!==null){drag=1;off=x-Cn.position.x;cv.style.cursor="grabbing"}});
 addEventListener("pointerup",function(){drag=0;pdown=0});
+addEventListener("pointercancel",function(){drag=0;pdown=0});
 var lx=0,ly=0;
 function rub(e,x){var d=Math.hypot(e.clientX-lx,e.clientY-ly);lx=e.clientX;ly=e.clientY;
  if(S.done||x===null||x<S.c-.3||x>4.2||Math.abs(P.z)>1.5)return;
@@ -202,6 +212,12 @@ $("nx").onclick=function(){if(S.st==6){S.order=[];go(0)}else go(S.st+1)};
 $("bk").onclick=function(){go(S.st-1)};
 function setStd(s){S.std=s;S.order=[];$("cA").className=s=="A"?"sel":"";$("cB").className=s=="B"?"sel":"";go(0)}
 $("cA").onclick=function(){setStd("A")};$("cB").onclick=function(){setStd("B")};
+
+// ---------- fullscreen + landscape (Android Chrome)
+$("rotB").onclick=function(){
+ var d=document.documentElement,f=d.requestFullscreen||d.webkitRequestFullscreen;
+ try{Promise.resolve(f&&f.call(d)).then(function(){
+  return screen.orientation&&screen.orientation.lock&&screen.orientation.lock("landscape")}).catch(function(){})}catch(e){}};
 
 // ---------- loop
 function L(a,b,k){return a+(b-a)*k}
