@@ -9,7 +9,10 @@
 :root{box-sizing:border-box;--glass:rgba(12,20,27,.78);--ink:#eaf1f5;--mute:#9fb1bd;--line:rgba(255,255,255,.14);--g:#4ee08a;--r:#ff7478}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--glass:rgba(12,20,27,.78)}}
 :root[data-theme="dark"]{--glass:rgba(12,20,27,.78)}
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body,canvas,.p,#rot,#load{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none}
+canvas{outline:none}
+::selection{background:transparent}
 html,body{height:100%;margin:0;background:#0b1116;overflow:hidden;font-family:"Vazirmatn",Tahoma,sans-serif;color:var(--ink)}
 canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block}
 .p{position:fixed;background:var(--glass);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
@@ -27,7 +30,8 @@ button.pri{background:#eaf1f5;color:#0b1116}button.sel{outline:2px solid var(--g
 button:focus-visible{outline:3px solid #6aa8ff;outline-offset:2px}
 #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0b1116;font-weight:600}
 #rot{position:fixed;inset:0;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(11,17,22,.96);text-align:center;padding:24px;font-weight:600;line-height:1.9}
-#rot .ic{font-size:56px;display:inline-block;animation:rt 2s ease-in-out infinite}
+#rot .ic{display:inline-block;width:72px;height:72px;color:var(--ink);transform-origin:50% 50%;animation:rt 2s ease-in-out infinite}
+#rot .ic svg{display:block;width:100%;height:100%}
 @keyframes rt{0%,30%{transform:rotate(0)}70%,100%{transform:rotate(-90deg)}}
 @media (orientation:portrait) and (max-width:900px){#rot{display:flex}}
 </style>
@@ -35,7 +39,7 @@ button:focus-visible{outline:3px solid #6aa8ff;outline-offset:2px}
 <body>
 <canvas id="c"></canvas>
 <div id="load">در حال آماده‌سازی کارگاه...</div>
-<div id="rot"><div class="ic">📱</div><div>برای تجربهٔ بهتر، گوشی را افقی بچرخانید</div><div style="font-size:13px;color:var(--mute)">اگر صفحه نمی‌چرخد، قفل چرخش گوشی را خاموش کنید.</div><button id="rotB" class="pri">تمام‌صفحه و افقی</button></div>
+<div id="rot"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.4"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg></div><div>برای تجربهٔ بهتر، گوشی را افقی بچرخانید</div><div style="font-size:13px;color:var(--mute)">اگر صفحه نمی‌چرخد، قفل چرخش گوشی را خاموش کنید.</div><button id="rotB" class="pri">تمام‌صفحه و افقی</button></div>
 <div class="p" id="top"><b id="ttl"></b><div id="dots"></div><div class="ctl"><button id="cB">T568B</button><button id="cA">T568A</button></div></div>
 <div class="p" id="side"></div>
 <div class="p" id="bot"><p id="ins"></p><p id="fb"></p>
@@ -158,6 +162,12 @@ function go(n){
 function side(){var s=$("side");s.style.display=S.st==2&&S.hint?"block":"none";
  s.innerHTML="<b>راهنما (بالا به پایین)</b>"+STD[S.std].map(function(id,i){return"<div><span>"+(i+1)+"</span><s style='background:"+sw(id)+"'></s>"+WN[id]+"</div>"}).join("")}
 function led(a,i,s){var m=a[i].material;m.emissive.setHex(s=="g"?0x22ff77:s=="r"?0xff2a30:0);m.color.setHex(s=="g"?0x2fd16b:s=="r"?0xe5484d:0x1a2228)}
+
+// ---------- جلوگیری از انتخاب شدن (select) هنگام کلیک و لمس
+cv.addEventListener("pointerdown",function(e){e.preventDefault()});
+cv.addEventListener("contextmenu",function(e){e.preventDefault()});
+cv.addEventListener("dragstart",function(e){e.preventDefault()});
+document.addEventListener("selectstart",function(e){e.preventDefault()});
 
 // ---------- input
 function mv(e){M.x=e.clientX/innerWidth*2-1;M.y=-e.clientY/innerHeight*2+1}
